@@ -1,7 +1,7 @@
 using StatsPlots, Distributions
 
-b1 = Beta(100000000,100)
+b1 = Beta(13,3)
 
 
-plot(b1, label="2,2")
+plot(b1)
 
