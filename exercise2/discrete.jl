@@ -5,7 +5,7 @@
 
 module DiscreteDistribution
 
-export Discrete, ℙ, *, /, logsumexp
+export Discrete, ℙ, *, /, logsumexp, DiscreteFromNonLog
 
 """
     The struct containing the parameters of the distributions.
@@ -36,6 +36,9 @@ Discrete{3}([0.0, 0.0, 1.0])
 """ 
 ##TODO## 
 Discrete(logP::Vector{Float64}) = Discrete{length(logP)}(logP)
+
+
+DiscreteFromNonLog(v::Vector{Float64}) = Discrete{length(v)}(log.(v))
 
 """
     Discrete(n::Int64)
