@@ -6,12 +6,12 @@ using .DistributionCollections: DistributionBag, add!, reset!
 
 using Distributions
 
-N = 5
-mu1 = 8
-mu2 = 12
-v1 = 2
-v2 = 2
-bq = 3
+N = 10
+mu1 = 10
+mu2 = 1
+v1 = 1
+v2 = 1
+bq = 2
 
 values = 1:N
 
@@ -20,7 +20,7 @@ f2(s1, p1) = pdf(Normal(s1, bq), p1)
 f3(s2) = pdf(Normal(mu2, v2), s2)
 f4(s2, p2) = pdf(Normal(s2, bq), p2)
 f5(p1, p2, d) = d == p1 - p2
-f6(d) = d >= 0
+f6(d) = d > 0
 
 # Aufgabe 3 a)
 
@@ -34,7 +34,7 @@ function p_s1(s1)
         for p1 in values
             for p2 in values
                 for d in -N:N
-                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d) * f6(d)
+                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d)
                 end
             end
         end
@@ -48,7 +48,7 @@ function p_s2(s2)
         for p1 in values
             for p2 in values
                 for d in -N:N
-                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d) * f6(d)
+                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d)
                 end
             end
         end
@@ -62,7 +62,7 @@ function p_p1(p1)
         for s2 in values
             for p2 in values
                 for d in -N:N
-                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d) * f6(d)
+                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d)
                 end
             end
         end
@@ -76,7 +76,7 @@ function p_p2(p2)
         for s2 in values
             for p1 in values
                 for d in -N:N
-                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d) * f6(d)
+                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d)
                 end
             end
         end
@@ -90,7 +90,7 @@ function p_d(d)
         for s2 in values
             for p1 in values
                 for p2 in values
-                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d) * f6(d)
+                    sum += f1(s1) * f2(s1, p1) * f3(s2) * f4(s2, p2) * f5(p1, p2, d)
                 end
             end
         end
@@ -98,24 +98,28 @@ function p_d(d)
     sum
 end
 
+println()
+println("All Marginals without data with Sum-Product:")
 marginal_s1 = p_s1.(values)
 marginal_s2 = p_s2.(values)
 marginal_p1 = p_p1.(values)
 marginal_p2 = p_p2.(values)
 marginal_d = p_d.(-N:N)
 
-println(DiscreteFromNonLog(marginal_s1))
-println(DiscreteFromNonLog(marginal_s2))
-println(DiscreteFromNonLog(marginal_p1))
-println(DiscreteFromNonLog(marginal_p2))
-println(DiscreteFromNonLog(marginal_d))
+println("s1: $(DiscreteFromNonLog(marginal_s1))")
+println("s2: $(DiscreteFromNonLog(marginal_s2))")
+println("p1: $(DiscreteFromNonLog(marginal_p1))")
+println("p2: $(DiscreteFromNonLog(marginal_p2))")
+println("d: $(DiscreteFromNonLog(marginal_d))")
 
 # Aufgabe 3 b)
 
 marginals = DistributionBag(Discrete(N))
-for i in 1:5
+for i in 1:4
     add!(marginals)
 end
+
+marginal_d = Discrete(2*N*1)
 
 # messages = DistributionBag(Discrete(N))
 
@@ -140,14 +144,15 @@ m_f5_P2 = Discrete(N)
 m_f5_D = Discrete(N)
 m_D_f5 = Discrete(N)
 m_D_f6 = Discrete(N)
-m_f6_D = Discrete(N)
+m_f6_D = Discrete(2*N+1)
 
 
 # 1
 m_f1_S1 = m_f1_S1 * DiscreteFromNonLog(f1(values))
 
+
 # 2
-m_f3_S2 *= DiscreteFromNonLog(f3(values))
+m_f3_S2 = DiscreteFromNonLog(f3(values))
 
 # 3
 marginals[1] = m_f1_S1 * m_f2_S1
@@ -156,22 +161,24 @@ marginals[1] = m_f1_S1 * m_f2_S1
 marginals[2] = m_f3_S2 * m_f4_S2
 
 # 5
-m_f2_P1 = begin
-    local sum = zeros(N)
-    for s1 in values
-        sum += f2(s1, values)
+res = zeros(N)
+for p1 in 1:N
+    for s1 in 1:N
+        res[p1] += f2(s1, p1) * ℙ(marginals[1])[s1]
     end
-    DiscreteFromNonLog(sum) * marginals[1]
 end
 
+m_f2_P1 = DiscreteFromNonLog(res)
+
 # 6
-m_f4_P2 = begin
-    local sum = zeros(N)
-    for s2 in values
-        sum += f2(s2, values)
+res = zeros(N)
+for p2 in 1:N
+    for s2 in 1:N
+        res[p2] += f4(s2, p2) * ℙ(marginals[2])[s2]
     end
-    DiscreteFromNonLog(sum) * marginals[2]
 end
+
+m_f4_P2 = DiscreteFromNonLog(res)
 
 # 7
 marginals[3] = m_f2_P1 * m_f5_P1
@@ -180,19 +187,32 @@ marginals[3] = m_f2_P1 * m_f5_P1
 marginals[4] = m_f4_P2 * m_f5_P2
 
 # 9
-m_P1_f5 = marginals[5] / m_f5_P1
+m_P1_f5 = marginals[3] / m_f5_P1
 
 # 10
-m_P2_f5 = marginals[5] / m_f5_P2
+m_P2_f5 = marginals[4] / m_f5_P2
 
 # 11
-# m_f5_D = begin
-#     local values2N = -N:N
-#     local sum = zeros(2)
+res = zeros(2*N+1)
 
-#     for p1 in values
-#         for p2 in values
-#            f5(p1, p2, values2N)
-#         end
-#     end
-# end
+for (i, d) in enumerate(-N:N)
+    for p1 in 1:N
+        for p2 in 1:N
+            res[i] += f5(p1, p2, d) * ℙ(m_P1_f5)[p1] * ℙ(m_P2_f5)[p2]
+        end
+    end
+end
+
+m_f5_D = DiscreteFromNonLog(res)
+
+
+# 12
+marginal_d = m_f5_D * m_f6_D
+
+println()
+println("All Marginals without data with Sum-Product:")
+println("S1: $(marginals[1])")
+println("S2: $(marginals[2])")
+println("P1: $(marginals[3])")
+println("P2: $(marginals[4])")
+println("D: $(marginal_d)")

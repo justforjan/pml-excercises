@@ -38,7 +38,7 @@ Discrete{3}([0.0, 0.0, 1.0])
 Discrete(logP::Vector{Float64}) = Discrete{length(logP)}(logP)
 
 
-DiscreteFromNonLog(v::Vector{Float64}) = Discrete{length(v)}(log.(v))
+DiscreteFromNonLog(v::Vector{Float64}) = return Discrete{length(v)}(log.(v))
 
 """
     Discrete(n::Int64)
