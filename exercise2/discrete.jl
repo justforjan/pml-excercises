@@ -166,4 +166,8 @@ function Base.show(io::IO, p::Discrete)
     print(io, "]")
 end
 
+function Base.:(==)(p::Discrete{T}, q::Discrete{T}) where {T}
+    ℙ(p) == ℙ(q)
+end
+
 end
