@@ -32,16 +32,5 @@ plot!(x, v1, color=:red)
 plot!(x, v2, color=:blue)
 plot!(x, vmult, color=:green)
 
-# savefig("./exercise2/plot.png")
+savefig("./exercise2/1a.png")
 
-# a = 0.5
-
-# Nb = Normal(a * μ1 + (1 - a) * μ2, a^2 * σ1^2 + ((1 - a)^2) * σ2^2)
-
-
-# @manipulate throttle=.05 for λ=0:.1:5, μ=0:.1:5
-#     xs = range(0.0, 1.0, length = 100)
-#     Plots.plot(xs, x -> λ*x^2 + μ)
-# end
-
-# slider(0:0.01:1, a=0.5)
