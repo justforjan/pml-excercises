@@ -6,12 +6,12 @@ using .DistributionCollections: DistributionBag, add!, reset!
 
 using Distributions
 
-N = 10
-mu1 = 1
-mu2 = 9
+N = 20
+mu1 = 8
+mu2 = 12
 v1 = 2
 v2 = 2
-bq = 1
+bq = 3
 
 println("N = $(N)")
 println("μ1 = $(mu1)")
@@ -108,17 +108,21 @@ end
 
 println()
 println("All Marginals without data by summing out:")
-marginal_s1 = p_s1.(values)
-marginal_s2 = p_s2.(values)
-marginal_p1 = p_p1.(values)
-marginal_p2 = p_p2.(values)
-marginal_d = p_d.(dvalues)
+marginal_s1_a = DiscreteFromNonLog(p_s1.(values))
+marginal_s2_a = DiscreteFromNonLog(p_s2.(values))
+marginal_p1_a = DiscreteFromNonLog(p_p1.(values))
+marginal_p2_a = DiscreteFromNonLog(p_p2.(values))
+marginal_d_a = DiscreteFromNonLog(p_d.(dvalues))
 
-println("s1: $(DiscreteFromNonLog(marginal_s1))")
-println("s2: $(DiscreteFromNonLog(marginal_s2))")
-println("p1: $(DiscreteFromNonLog(marginal_p1))")
-println("p2: $(DiscreteFromNonLog(marginal_p2))")
-println("d: $(DiscreteFromNonLog(marginal_d))")
+println("s1: $(marginal_s1_a)")
+println("s2: $marginal_s2_a)")
+println("p1: $(marginal_p1_a)")
+println("p2: $(marginal_p2_a)")
+println("d: $(marginal_d_a)")
+
+
+
+start_sum = time()
 
 function p_s1(s1)
     local sum = 0
@@ -192,17 +196,45 @@ end
 
 println()
 println("All Marginals *with* data by summing out:")
-marginal_s1 = p_s1.(values)
-marginal_s2 = p_s2.(values)
-marginal_p1 = p_p1.(values)
-marginal_p2 = p_p2.(values)
-marginal_d = p_d.(dvalues)
+marginal_s1_b = DiscreteFromNonLog(p_s1.(values))
+marginal_s2_b = DiscreteFromNonLog(p_s2.(values))
+marginal_p1_b = DiscreteFromNonLog(p_p1.(values))
+marginal_p2_b = DiscreteFromNonLog(p_p2.(values))
+marginal_d_b = DiscreteFromNonLog(p_d.(dvalues))
 
-println("s1: $(DiscreteFromNonLog(marginal_s1))")
-println("s2: $(DiscreteFromNonLog(marginal_s2))")
-println("p1: $(DiscreteFromNonLog(marginal_p1))")
-println("p2: $(DiscreteFromNonLog(marginal_p2))")
-println("d: $(DiscreteFromNonLog(marginal_d))")
+end_sum = time()
+
+println("s1: $(marginal_s1_b)")
+println("s2: $marginal_s2_b)")
+println("p1: $(marginal_p1_b)")
+println("p2: $(marginal_p2_b)")
+println("d: $(marginal_d_b)")
+
+# Plot S1
+bar(ℙ(marginal_s1_a), alpha=0.5, title="S1", label="Ohne Daten")
+bar!(ℙ(marginal_s1_b), alpha=0.5, color=:red, label="Mit Daten")
+
+savefig("exercise2/s1.png")
+
+bar(ℙ(marginal_s2_a), alpha=0.5, title="S2", label="Ohne Daten")
+bar!(ℙ(marginal_s2_b), alpha=0.5, color=:red, label="Mit Daten")
+
+savefig("exercise2/s2.png")
+
+bar(ℙ(marginal_p1_a), alpha=0.5, title="P1", label="Ohne Daten")
+bar!(ℙ(marginal_p1_b), alpha=0.5, color=:red, label="Mit Daten")
+
+savefig("exercise2/p1.png")
+
+bar(ℙ(marginal_p2_a), alpha=0.5, title="P2", label="Ohne Daten")
+bar!(ℙ(marginal_p2_b), alpha=0.5, color=:red, label="Mit Daten")
+
+savefig("exercise2/p2.png")
+
+bar(ℙ(marginal_d_a), alpha=0.5, title="D", label="Ohne Daten")
+bar!(ℙ(marginal_d_b), alpha=0.5, color=:red, label="Mit Daten")
+
+savefig("exercise2/d.png")
 
 println()
 println("----------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -214,7 +246,7 @@ for i in 1:4
     add!(marginals)
 end
 
-marginal_d = Discrete(2*N-1)
+marginal_d = Discrete(length(dvalues))
 
 m_f1_S1 = Discrete(N)
 m_S1_f1 = Discrete(N)
@@ -239,6 +271,7 @@ m_D_f5 = Discrete(length(dvalues))
 m_D_f6 = Discrete(length(dvalues))
 m_f6_D = Discrete(length(dvalues))
 
+start_sumprod = time()
 
 # 1
 m_f1_S1 = DiscreteFromNonLog(f1.(values))
@@ -320,6 +353,10 @@ marginal_d = m_f5_D * m_f6_D
 # 15
 m_D_f5 = marginal_d / m_f5_D
 
+# println(m_D_f5)
+# println(marginal_d)
+# println(m_f5_D)
+
 # 16
 res = zeros(N)
 
@@ -366,13 +403,15 @@ for s2 in values
         res[s2] += f2(s2, p2) * ℙ(marginals[4] / m_f4_P2)[p2]
     end
 end
-m_f2_S1 = DiscreteFromNonLog(res)
+m_f4_S2 = DiscreteFromNonLog(res)
 
 # 22
 marginals[1] = m_f1_S1 * m_f2_S1
 
 # 23
 marginals[2] = m_f3_S2 * m_f4_S2
+
+end_sumprod = time()
 
 println()
 println("All Marginals *with* data with Sum-Product:")
@@ -381,3 +420,11 @@ println("S2: $(marginals[2])")
 println("P1: $(marginals[3])")
 println("P2: $(marginals[4])")
 println("D: $(marginal_d)")
+
+println("------------------------------------------------------------------------------------")
+
+println(end_sum - start_sum)
+println(end_sumprod - start_sumprod)
+println((end_sum - start_sum) / (end_sumprod - start_sumprod))
+
+
