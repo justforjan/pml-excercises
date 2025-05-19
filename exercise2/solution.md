@@ -23,8 +23,8 @@ ci = conditionally independent
 ### b)
 - D und E sind nicht ci
   - der Pfad D, B, E hat keinen blockierenden Knoten
-- A und E sind nicht ci ?
-  - ?
+- A und E sind nicht ci
+  - Der Pfad A, D, H, E hat keinen blockierenden Knoten. H ist kein blockierender tail-to-tail Knoten, da I, Nachfahre von H, clamped ist.
 - E und F sind ci
   - da C clamped ist, hat der einzige Pfad E, C, F einen blockierenden Knoten (tail-to-tail)
 
@@ -32,16 +32,17 @@ ci = conditionally independent
 - A und G nicht ci
   - Der einzige Pfad A, D, G hat keinen blockiereneden Knoten
 - C und I sind ci
-  - ?? 
+  - Auf dem Pfad C, E, H, I sind E, und H blockierende head-to-tail knoten
+  - Auf dem Pfad C, E, B, D, H, I ist H ein blockierender head-to-tail Knoten
 - A und I sind ci
-  - Auf Pfad A, D, H, I gibt es einen head-to-head Knoten (H) der blockierend ist, der er clamped ist
-  - Auf dem Pfad A, D, B, E, H, I auch einen head-to-head über B, E, H, I da E und H clamped sind
+  - Auf Pfad A, D, H, I gibt es einen blockierenden head-to-head Knoten (H), der er clamped ist
+  - Auf dem Pfad A, D, B, E, H, I auch einen blockierenden head-to-tail über B, E, H, I da E und H clamped sind
 
 ### d)
 - A und H sind nicht ci
   - Auf dem Pfad A, D, B, E, H gibt es keinen blockierenden Knoten
 - C und I sind nicht ci
-  - ?? ist E ein blockierender Knoten?
+  - Der Pfad C, E, H, I hat keinen blockierenden Knoten
 - G und F sind ci
   - Auf dem Pfad G, D, H, E, C, F ist D blockierender Knoten da er clamped und tail-to-tail ist
   - Auf dem Pfad G, D, E, E, C, F sind E ein blockierender Knoten, da E head-to-head Knoten aber nicht clamped ist, so wie seine Nachkommen.
@@ -81,4 +82,5 @@ Sum Product: 0.32404494285583496 s
 Verhältnis: 154.70875323641442 s
 ```
 
-Das Model funktioniert auch für andere Verteilungen der Faktoren. 
+Das Model funktioniert auch für andere Verteilungen der Faktoren. Da wir uns im stetigen Raum bewegen, ändert sich an den Berechnungen nichts.
+Der Effekt wird nur sein, dass die Marginals anders initialisiert werden. 
